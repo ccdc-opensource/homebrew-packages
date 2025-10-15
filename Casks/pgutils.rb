@@ -1,6 +1,6 @@
 cask "pgutils" do
-  version "2.1.13.1"
-  sha256 "9a830eaf3cd079dedd262b25e13949281c910d5475ed267f0765cb15b5b0daf0"
+  version "2.1.14.1"
+  sha256 "f43c5908e1d6b50723ccf92ec24fcd89a567fdc016198224d9e51bc2c6e39bc7"
 
   url "https://github.com/Inedo/pgutil/releases/download/v#{version}/pgutil-osx-arm64.zip"
   name "pgutil"
