@@ -1,5 +1,5 @@
 cask "pgutils" do
-  version "2.1.14.1"
+  version "2.2.0.3"
   name "pgutil"
   desc "CLI for performing actions with ProGet"
   homepage "https://inedo.com"
