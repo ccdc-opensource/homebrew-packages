@@ -8,7 +8,7 @@ on: # yamllint disable-line rule:truthy
 env:
   GH_TOKEN: ${{ github.token }}
 permissions:
-  contents: read
+  contents: write
   pull-requests: write
 jobs:
   check-pgutils-version:
@@ -53,11 +53,8 @@ jobs:
           # Replace sha256 under on_intel block
           awk -v sha="$sha_intel" 'BEGIN{p=0} /on_intel do/{p=1; print; next} p==1 && /sha256/{print "    sha256 \"" sha "\""; p=0; next} {print}' Casks/pgutils.rb > Casks/pgutils.rb.tmp && mv Casks/pgutils.rb.tmp Casks/pgutils.rb
 
-      - name: Commit and push changes
-        if: steps.check_version.outputs.UpdateRequired == 'true'
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add .
-          git commit -m "Update pgutils to version ${{ steps.check_version.outputs.version }}"
-          git push
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: "update-pgutils-${{ steps.check_version.outputs.version }}"
+          title: "Update pgutils to version ${{ steps.check_version.outputs.version }}"
