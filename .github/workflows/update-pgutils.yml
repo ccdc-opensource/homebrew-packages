@@ -5,20 +5,56 @@ on: # yamllint disable-line rule:truthy
     - cron: "0 1 * * *"
   workflow_dispatch:
 
+env:
+  GH_TOKEN: ${{ github.token }}
+permissions:
+  contents: write
+  pull-requests: write
 jobs:
   check-pgutils-version:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v6
+        with:
+          ref: ${{ github.head_ref }}
 
       - name: Check latest pgutil version against local version
+        id: check_version
         run: |
-          $version=$(gh repo view Inedo/pgutil --json latestRelease --jq '.latestRelease.tagName')
-          $localVersion=$(cat Casks/pgutils.rb | grep "version " | awk '{print $2}' | tr -d \"\v )
+          version=$(gh repo view Inedo/pgutil --json latestRelease --jq '.latestRelease.tagName' | tr -d "v")
+          localVersion=$(cat Casks/pgutils.rb | grep "version " | awk '{print $2}' | tr -d '"')
+          echo "version=$version" >> $GITHUB_OUTPUT
+          echo "localVersion=$localVersion" >> $GITHUB_OUTPUT
+
           if [ "$version" != "$localVersion" ]; then
             echo "New pgutil version available: $version (local version: $localVersion)"
-            exit 1
+            echo "UpdateRequired=true" >> $GITHUB_OUTPUT
           else
             echo "pgutil is up to date (version: $localVersion)"
+            echo "UpdateRequired=false" >> $GITHUB_OUTPUT
           fi
+
+      - name: Update local cask file
+        if: steps.check_version.outputs.UpdateRequired == 'true'
+        run: |
+          version="${{ steps.check_version.outputs.version }}"
+          echo "Updating Casks/pgutils.rb to version $version"
+
+          sha_arm=$(curl -L -s "https://github.com/Inedo/pgutil/releases/download/v${version}/pgutil-osx-arm64.zip" | shasum -a 256 | awk '{print $1}')
+          sha_intel=$(curl -L -s "https://github.com/Inedo/pgutil/releases/download/v${version}/pgutil-osx-x64.zip" | shasum -a 256 | awk '{print $1}')
+
+          # Update version line
+          sed -i "s/^  version \".*\"$/  version \"$version\"/" Casks/pgutils.rb
+
+          # Replace sha256 under on_arm block
+          awk -v sha="$sha_arm" 'BEGIN{p=0} /on_arm do/{p=1; print; next} p==1 && /sha256/{print "    sha256 \"" sha "\""; p=0; next} {print}' Casks/pgutils.rb > Casks/pgutils.rb.tmp && mv Casks/pgutils.rb.tmp Casks/pgutils.rb
+
+          # Replace sha256 under on_intel block
+          awk -v sha="$sha_intel" 'BEGIN{p=0} /on_intel do/{p=1; print; next} p==1 && /sha256/{print "    sha256 \"" sha "\""; p=0; next} {print}' Casks/pgutils.rb > Casks/pgutils.rb.tmp && mv Casks/pgutils.rb.tmp Casks/pgutils.rb
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v8
+        with:
+          branch: "update-pgutils-${{ steps.check_version.outputs.version }}"
+          title: "Update pgutils to version ${{ steps.check_version.outputs.version }}"

@@ -1,16 +1,16 @@
 cask "pgutils" do
-  version "2.2.9.1"
+  version "2.2.6.1"
   name "pgutil"
   desc "CLI for performing actions with ProGet"
   homepage "https://inedo.com"
 
   on_arm do
-    sha256 "2a78377163f47f6874181d7ce12325027368bbaa7c2fc37688523409754afc01"
+    sha256 "fdcd5d4539c66d9dfa466568dafe97fd4e1161689685b2a1103a2dea76269c2f"
     url "https://github.com/Inedo/pgutil/releases/download/v#{version}/pgutil-osx-arm64.zip"
   end
 
   on_intel do
-    sha256 "c1a6228f6d2c7c22c3ef2429c28a783e33f4ed3e18dd666bf7bf5bb4d210b1a8"
+    sha256 "7da488ed4cbbb1c8b04d661459142b214aefa9e97d181c6ec38d6a9bc38412e8"
     url "https://github.com/Inedo/pgutil/releases/download/v#{version}/pgutil-osx-x64.zip"
   end
 
