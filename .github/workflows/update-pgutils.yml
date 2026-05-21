@@ -17,7 +17,7 @@ jobs:
 
       - name: Check latest pgutil version against local version
         run: |
-          version=$(gh repo view Inedo/pgutil --json latestRelease --jq '.latestRelease.tagName' | ltrimstr("v"))
+          version=$(gh repo view Inedo/pgutil --json latestRelease --jq '.latestRelease.tagName' | tr -d "v")
           localVersion=$(cat Casks/pgutils.rb | grep "version " | awk '{print $2}' | tr -d '"')
           if [ "$version" != "$localVersion" ]; then
             echo "New pgutil version available: $version (local version: $localVersion)"
