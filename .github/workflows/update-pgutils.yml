@@ -9,6 +9,7 @@ env:
   GH_TOKEN: ${{ github.token }}
 permissions:
   contents: read
+  pull-requests: write
 jobs:
   check-pgutils-version:
     runs-on: ubuntu-latest
