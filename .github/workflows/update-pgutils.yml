@@ -1,0 +1,24 @@
+---
+name: Check for PGUtils updates
+on: # yamllint disable-line rule:truthy
+  schedule:
+    - cron: "0 1 * * *"
+  workflow_dispatch:
+
+jobs:
+  check-pgutils-version:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Check latest pgutil version against local version
+        run: |
+          $version=$(gh repo view Inedo/pgutil --json latestRelease --jq '.latestRelease.tagName')
+          $localVersion=$(cat Casks/pgutils.rb | grep "version " | awk '{print $2}' | tr -d \"\v )
+          if [ "$version" != "$localVersion" ]; then
+            echo "New pgutil version available: $version (local version: $localVersion)"
+            exit 1
+          else
+            echo "pgutil is up to date (version: $localVersion)"
+          fi
