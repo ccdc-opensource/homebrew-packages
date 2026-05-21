@@ -26,7 +26,7 @@ jobs:
           localVersion=$(cat Casks/pgutils.rb | grep "version " | awk '{print $2}' | tr -d '"')
           echo "version=$version" >> $GITHUB_OUTPUT
           echo "localVersion=$localVersion" >> $GITHUB_OUTPUT
-          
+
           if [ "$version" != "$localVersion" ]; then
             echo "New pgutil version available: $version (local version: $localVersion)"
             echo "UpdateRequired=true" >> $GITHUB_OUTPUT
@@ -34,7 +34,7 @@ jobs:
             echo "pgutil is up to date (version: $localVersion)"
             echo "UpdateRequired=false" >> $GITHUB_OUTPUT
           fi
-      
+
       - name: Update local cask file
         if: steps.check_version.outputs.UpdateRequired == 'true'
         run: |
