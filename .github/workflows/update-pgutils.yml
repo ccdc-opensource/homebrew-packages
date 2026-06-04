@@ -58,3 +58,4 @@ jobs:
         with:
           branch: "update-pgutils-${{ steps.check_version.outputs.version }}"
           title: "Update pgutils to version ${{ steps.check_version.outputs.version }}"
+          token: "${{ secrets.PULL_REQUEST_ACCESS }}"
